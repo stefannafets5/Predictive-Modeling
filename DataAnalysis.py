@@ -55,7 +55,7 @@ def analyze_all_correlations(dataset, num_col, cat_col, class_target, reg_target
     chi2_result = chi2_contingency(crosstab_result)
     print(f"\nChi-Square test: {cat_col} vs {class_target}:")
     print(crosstab_result)
-    print(f"P-Value: {chi2_result[1]:.4f}")
+    print(f"P-Value: {chi2_result[1]:.4f}\n")
 
     plt.figure(figsize=(8, 4))
     sns.boxplot(x=dataset[class_target], y=dataset[num_col])
