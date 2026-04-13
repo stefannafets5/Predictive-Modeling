@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from pandas.api.types import is_numeric_dtype
+from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from scipy.stats import chi2_contingency
 
@@ -74,9 +76,23 @@ def impute_columns(dataset):
     for col in null_columns:
         if 'clicks_' in col:
             dataset = impute_missing_values(dataset, col, 'constant') # substitute with 0
-        elif dataset[col].dtype == 'object':
-            dataset = impute_missing_values(dataset, col, 'most_frequent') # substitute with most frequent string
-        else:
+        elif is_numeric_dtype(dataset[col]):
             dataset = impute_missing_values(dataset, col, 'median') # substitute with median
-        
+        else:
+            dataset = impute_missing_values(dataset, col, 'most_frequent') # substitute with most frequent string
+
+    return dataset
+
+def standardize_data(dataset):
+    exclude = ['final_result', 'final_coursework_score']
+    numeric_columns = dataset.select_dtypes(include=['number']).columns.tolist()
+    
+    scaling_columns = []
+    for col in numeric_columns:
+        if col not in exclude:
+            scaling_columns.append(col)
+
+    scaler = StandardScaler()
+    dataset[scaling_columns] = scaler.fit_transform(dataset[scaling_columns])
+
     return dataset

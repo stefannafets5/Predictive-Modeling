@@ -8,7 +8,9 @@ from DataAnalysis import (
 from DataProcessing import (
     check_redundant_attributes,
     check_null_values,
-    impute_columns
+    impute_columns,
+    replace_outliers_with_nan,
+    standardize_data
 )
 
 def analyze_dataset(dataset):
@@ -36,7 +38,9 @@ def process_dataset(dataset):
     # replace outliers with NaN then impute those values
     dataset = replace_outliers_with_nan(dataset)
     dataset = impute_columns(dataset)
-    
+
+    dataset = standardize_data(dataset)
+
     return dataset
 
 def main():
