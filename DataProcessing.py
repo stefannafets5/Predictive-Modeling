@@ -83,9 +83,9 @@ def impute_columns(dataset):
 
     return dataset
 
-def standardize_data(dataset):
+def standardize_data(train_dataset, test_dataset):
     exclude = ['final_result', 'final_coursework_score']
-    numeric_columns = dataset.select_dtypes(include=['number']).columns.tolist()
+    numeric_columns = train_dataset.select_dtypes(include=['number']).columns.tolist()
     
     scaling_columns = []
     for col in numeric_columns:
@@ -93,6 +93,15 @@ def standardize_data(dataset):
             scaling_columns.append(col)
 
     scaler = StandardScaler()
-    dataset[scaling_columns] = scaler.fit_transform(dataset[scaling_columns])
+    train_dataset[scaling_columns] = scaler.fit_transform(train_dataset[scaling_columns])
+    test_dataset[scaling_columns] = scaler.transform(test_dataset[scaling_columns])
 
+    return train_dataset, test_dataset
+
+def merge_total_activity(dataset):
+    click_columns = [col for col in dataset.columns if 'clicks_' in col and col != 'clicks_freq_init']
+    
+    dataset['total_activity'] = dataset[click_columns].sum(axis=1)
+    dataset = dataset.drop(columns=click_columns)
+    
     return dataset
