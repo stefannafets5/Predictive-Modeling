@@ -11,7 +11,8 @@ from DataProcessing import (
     impute_columns,
     replace_outliers_with_nan,
     standardize_data,
-    merge_total_activity
+    merge_total_activity,
+    convert_categorical_to_numeric
 )
 from Clasify import run_model
 
@@ -39,12 +40,15 @@ def process_dataset(train_dataset, test_dataset):
     train_dataset = train_dataset.drop(columns=null_columns)
     test_dataset = test_dataset.drop(columns=null_columns)
 
-    # replace outliers with NaN then impute those values
-    train_dataset = replace_outliers_with_nan(train_dataset)
-    train_dataset = impute_columns(train_dataset)
+    train_dataset = train_dataset.drop(columns=['region', 'gender'], errors='ignore')
+    test_dataset = test_dataset.drop(columns=['region', 'gender'], errors='ignore')
 
-    test_dataset = replace_outliers_with_nan(test_dataset)
-    test_dataset = impute_columns(test_dataset)
+    train_dataset = convert_categorical_to_numeric(train_dataset)
+    test_dataset = convert_categorical_to_numeric(test_dataset)
+
+    # replace outliers with NaN then impute those values
+    train_dataset, test_dataset = replace_outliers_with_nan(train_dataset, test_dataset)
+    train_dataset, test_dataset = impute_columns(train_dataset, test_dataset)
 
     train_dataset = merge_total_activity(train_dataset)
     test_dataset = merge_total_activity(test_dataset)

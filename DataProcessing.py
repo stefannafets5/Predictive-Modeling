@@ -5,28 +5,28 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 from scipy.stats import chi2_contingency
 
-def impute_missing_values(dataset, column_name, strategy):
-    imputer = SimpleImputer(strategy=strategy)
-    dataset[[column_name]] = imputer.fit_transform(dataset[[column_name]])
-    return dataset
-
-def replace_outliers_with_nan(dataset):
+def replace_outliers_with_nan(train_dataset, test_dataset):
     exclude = ['final_result', 'final_coursework_score']
-    cnumeric_columns = dataset.select_dtypes(include=['number']).columns.tolist()
+    cnumeric_columns = train_dataset.select_dtypes(include=['number']).columns.tolist()
 
     for col in cnumeric_columns:
         if col not in exclude:
-            q1 = dataset[col].quantile(0.25)
-            q3 = dataset[col].quantile(0.75)
+            q1 = train_dataset[col].quantile(0.25)
+            q3 = train_dataset[col].quantile(0.75)
             middle = q3 - q1
             lower_bound = q1 - 1.5 * middle
             upper_bound = q3 + 1.5 * middle
 
-            replacing_small_values = dataset[col] < lower_bound
-            replacing_large_values = dataset[col] > upper_bound
-            dataset.loc[replacing_small_values | replacing_large_values, col] = np.nan
+            replacing_small_values = train_dataset[col] < lower_bound
+            replacing_large_values = train_dataset[col] > upper_bound
+            train_dataset.loc[replacing_small_values | replacing_large_values, col] = np.nan
 
-    return dataset
+            if col in test_dataset.columns:
+                test_small = test_dataset[col] < lower_bound
+                test_large = test_dataset[col] > upper_bound
+                test_dataset.loc[test_small | test_large, col] = np.nan
+
+    return train_dataset, test_dataset
 
 def check_redundant_attributes(dataset):
     exclude = ['final_result', 'final_coursework_score']
@@ -63,25 +63,26 @@ def check_null_values(dataset):
     
     for col in extreme_null_values.index:
         result.append(col)
-
-    for col in null_values.index:
-        print(f"{col}: {null_values[col]} null values")
-    
-    print("\n")
+        
     return result
 
-def impute_columns(dataset):
-    null_columns = dataset.columns[dataset.isna().any()].tolist()
+def impute_columns(train_dataset, test_dataset):
+    null_columns = train_dataset.columns[train_dataset.isna().any()].tolist()
     
     for col in null_columns:
         if 'clicks_' in col:
-            dataset = impute_missing_values(dataset, col, 'constant') # substitute with 0
-        elif is_numeric_dtype(dataset[col]):
-            dataset = impute_missing_values(dataset, col, 'median') # substitute with median
+            imputer = SimpleImputer(strategy='constant', fill_value=0)
+        elif is_numeric_dtype(train_dataset[col]):
+            imputer = SimpleImputer(strategy='median')
         else:
-            dataset = impute_missing_values(dataset, col, 'most_frequent') # substitute with most frequent string
+            imputer = SimpleImputer(strategy='most_frequent')
+            
+        train_dataset[[col]] = imputer.fit_transform(train_dataset[[col]])
+        
+        if col in test_dataset.columns:
+            test_dataset[[col]] = imputer.transform(test_dataset[[col]])
 
-    return dataset
+    return train_dataset, test_dataset
 
 def standardize_data(train_dataset, test_dataset):
     exclude = ['final_result', 'final_coursework_score']
@@ -104,4 +105,24 @@ def merge_total_activity(dataset):
     dataset['total_activity'] = dataset[click_columns].sum(axis=1)
     dataset = dataset.drop(columns=click_columns)
     
+    return dataset
+
+def convert_categorical_to_numeric(dataset):
+    clicks_map = {'missing_value': 0, 'low': 1, 'mid': 2, 'high': 3}
+    age_map = {'0-35': 1, '35-55': 2, '55<=': 3}
+    imd_map = {
+        '0-10%': 1, '10-20': 2, '20-30%': 3, '30-40%': 4, 
+        '40-50%': 5, '50-60%': 6, '60-70%': 7, '70-80%': 8, 
+        '80-90%': 9, '90-100%': 10
+    }
+    
+    if 'clicks_freq_init' in dataset.columns:
+        dataset['clicks_freq_init'] = dataset['clicks_freq_init'].map(clicks_map)
+    
+    if 'age_band' in dataset.columns:
+        dataset['age_band'] = dataset['age_band'].map(age_map)
+        
+    if 'imd_band' in dataset.columns:
+        dataset['imd_band'] = dataset['imd_band'].map(imd_map)
+        
     return dataset

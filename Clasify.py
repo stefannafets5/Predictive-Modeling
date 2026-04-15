@@ -3,7 +3,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
 
 def convert_categories_to_numbers(train_dataset, test_dataset):
     target = 'final_result'
@@ -22,12 +21,7 @@ def convert_categories_to_numbers(train_dataset, test_dataset):
 
 def train_and_evaluate(X_train, X_test, y_train, y_test, max_depth, min_samples_leaf, name):
     # model = DecisionTreeClassifier(max_depth=max_depth, min_samples_leaf=min_samples_leaf)
-    model = RandomForestClassifier(
-        n_estimators=100, 
-        max_depth=max_depth, 
-        min_samples_leaf=min_samples_leaf,
-        random_state=42
-    )
+    model = RandomForestClassifier(n_estimators=250, max_depth=max_depth, min_samples_leaf=min_samples_leaf)
     model.fit(X_train, y_train)
     
     predictions = model.predict(X_test)
@@ -55,7 +49,12 @@ def run_model(train_dataset, test_dataset):
     X_test = processed_test_dataset.drop(columns=['final_result', 'final_coursework_score'], errors='ignore')
     y_test = processed_test_dataset['final_result']
     
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 2, "Baseline_Default")
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 3, "Baseline_Default")
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 4, "Baseline_Default")
+    #good parameters for RandomForestClassifier
+    train_and_evaluate(X_train, X_test, y_train, y_test, None, 1, "Baseline_Default1")
+    train_and_evaluate(X_train, X_test, y_train, y_test, None, 2, "Baseline_Default2")
+    train_and_evaluate(X_train, X_test, y_train, y_test, None, 3, "Baseline_Default3")
+    train_and_evaluate(X_train, X_test, y_train, y_test, None, 4, "Baseline_Default4")
+    train_and_evaluate(X_train, X_test, y_train, y_test, None, 5, "Baseline_Default5")
+    # good parameters for DecisionTreeClassifier
+    # train_and_evaluate(X_train, X_test, y_train, y_test, 7, 20, "Baseline_Default")
 
