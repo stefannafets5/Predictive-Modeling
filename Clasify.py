@@ -14,6 +14,8 @@ def convert_categories_to_numbers(train_dataset, test_dataset):
     test_dataset[target] = encoder.transform(test_dataset[target])
     test_dataset = pd.get_dummies(test_dataset)
 
+    print(test_dataset.dtypes)
+
     # for columns that don't exist in the test dataset
     test_dataset = test_dataset.reindex(columns=train_dataset.columns, fill_value=0)
 
@@ -21,7 +23,7 @@ def convert_categories_to_numbers(train_dataset, test_dataset):
 
 def train_and_evaluate(X_train, X_test, y_train, y_test, max_depth, min_samples_leaf, name):
     # model = DecisionTreeClassifier(max_depth=max_depth, min_samples_leaf=min_samples_leaf)
-    model = RandomForestClassifier(n_estimators=250, max_depth=max_depth, min_samples_leaf=min_samples_leaf)
+    model = RandomForestClassifier(n_estimators=250, max_depth=max_depth, min_samples_leaf=min_samples_leaf, random_state=42)
     model.fit(X_train, y_train)
     
     predictions = model.predict(X_test)

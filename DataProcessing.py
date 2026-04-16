@@ -70,17 +70,14 @@ def impute_columns(train_dataset, test_dataset):
     null_columns = train_dataset.columns[train_dataset.isna().any()].tolist()
     
     for col in null_columns:
-        if 'clicks_' in col:
-            imputer = SimpleImputer(strategy='constant', fill_value=0)
-        elif is_numeric_dtype(train_dataset[col]):
-            imputer = SimpleImputer(strategy='median')
-        else:
-            imputer = SimpleImputer(strategy='most_frequent')
+        imputer = SimpleImputer(strategy='most_frequent')
+
+        if not is_numeric_dtype(train_dataset[col]):
             
-        train_dataset[[col]] = imputer.fit_transform(train_dataset[[col]])
-        
-        if col in test_dataset.columns:
-            test_dataset[[col]] = imputer.transform(test_dataset[[col]])
+            train_dataset[[col]] = imputer.fit_transform(train_dataset[[col]])
+            
+            if col in test_dataset.columns:
+                test_dataset[[col]] = imputer.transform(test_dataset[[col]])
 
     return train_dataset, test_dataset
 
@@ -115,6 +112,7 @@ def convert_categorical_to_numeric(dataset):
         '40-50%': 5, '50-60%': 6, '60-70%': 7, '70-80%': 8, 
         '80-90%': 9, '90-100%': 10
     }
+    education_map = {'No Formal quals': 0, 'Lower Than A Level': 1, 'A Level or Equivalent': 2, 'HE Qualification': 3, 'Post Graduate Qualification': 4}
     
     if 'clicks_freq_init' in dataset.columns:
         dataset['clicks_freq_init'] = dataset['clicks_freq_init'].map(clicks_map)
@@ -124,5 +122,8 @@ def convert_categorical_to_numeric(dataset):
         
     if 'imd_band' in dataset.columns:
         dataset['imd_band'] = dataset['imd_band'].map(imd_map)
-        
+
+    if 'highest_education' in dataset.columns:
+        dataset['highest_education'] = dataset['highest_education'].map(education_map)
+
     return dataset
