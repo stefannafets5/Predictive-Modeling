@@ -110,9 +110,11 @@ def convert_categorical_to_numeric(dataset):
     imd_map = {
         '0-10%': 1, '10-20': 2, '20-30%': 3, '30-40%': 4, 
         '40-50%': 5, '50-60%': 6, '60-70%': 7, '70-80%': 8, 
-        '80-90%': 9, '90-100%': 10
-    }
-    education_map = {'No Formal quals': 0, 'Lower Than A Level': 1, 'A Level or Equivalent': 2, 'HE Qualification': 3, 'Post Graduate Qualification': 4}
+        '80-90%': 9, '90-100%': 10}
+    education_map = {
+        'No Formal quals': 0, 'Lower Than A Level': 1,
+        'A Level or Equivalent': 2, 'HE Qualification': 3,
+        'Post Graduate Qualification': 4}
     
     if 'clicks_freq_init' in dataset.columns:
         dataset['clicks_freq_init'] = dataset['clicks_freq_init'].map(clicks_map)

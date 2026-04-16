@@ -23,7 +23,7 @@ def convert_categories_to_numbers(train_dataset, test_dataset):
 
 def train_and_evaluate(X_train, X_test, y_train, y_test, max_depth, min_samples_leaf, name):
     # model = DecisionTreeClassifier(max_depth=max_depth, min_samples_leaf=min_samples_leaf)
-    model = RandomForestClassifier(n_estimators=250, max_depth=max_depth, min_samples_leaf=min_samples_leaf, random_state=42)
+    model = RandomForestClassifier(n_estimators=250, max_depth=max_depth, min_samples_leaf=min_samples_leaf)
     model.fit(X_train, y_train)
     
     predictions = model.predict(X_test)
@@ -32,6 +32,7 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, max_depth, min_samples_
     precision = precision_score(y_test, predictions, average='weighted', zero_division=0)
     recall = recall_score(y_test, predictions, average='weighted', zero_division=0)
     f1 = f1_score(y_test, predictions, average='weighted', zero_division=0)
+    total_score = (acuracy + precision + recall + f1) / 4
     
     print(f"Rezultate pentru {name}:")
     print(f"Acuratete: {acuracy:.4f}")
@@ -40,7 +41,7 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, max_depth, min_samples_
     print(f"F1 Score: {f1:.4f}")
     print("\n")
     
-    return model
+    return total_score
 
 def run_model(train_dataset, test_dataset):
     processed_train_dataset, processed_test_dataset, label_encoder = convert_categories_to_numbers(train_dataset.copy(), test_dataset.copy())
@@ -52,11 +53,14 @@ def run_model(train_dataset, test_dataset):
     y_test = processed_test_dataset['final_result']
     
     #good parameters for RandomForestClassifier
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 1, "Baseline_Default1")
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 2, "Baseline_Default2")
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 3, "Baseline_Default3")
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 4, "Baseline_Default4")
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 5, "Baseline_Default5")
+    best = -1
+    ids = -1
+    for i in range(0,6):
+        score = train_and_evaluate(X_train, X_test, y_train, y_test, None, i+1, f"Baseline_Default{i+1}")
+        if score > best:
+            best = score
+            ids = i + 1
+    print(f"Best score: {best}, with id: {ids}")
     # good parameters for DecisionTreeClassifier
     # train_and_evaluate(X_train, X_test, y_train, y_test, 7, 20, "Baseline_Default")
 

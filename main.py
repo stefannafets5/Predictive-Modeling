@@ -43,12 +43,13 @@ def process_dataset(train_dataset, test_dataset):
     train_dataset = train_dataset.drop(columns=['region', 'gender'], errors='ignore')
     test_dataset = test_dataset.drop(columns=['region', 'gender'], errors='ignore')
 
-    train_dataset = convert_categorical_to_numeric(train_dataset)
-    test_dataset = convert_categorical_to_numeric(test_dataset)
-
     # replace outliers with NaN then impute those values
     train_dataset, test_dataset = replace_outliers_with_nan(train_dataset, test_dataset)
     train_dataset, test_dataset = impute_columns(train_dataset, test_dataset)
+
+    # convert categorical variables to numeric in oreder to minimize the final number of columns
+    train_dataset = convert_categorical_to_numeric(train_dataset)
+    test_dataset = convert_categorical_to_numeric(test_dataset)
 
     train_dataset = merge_total_activity(train_dataset)
     test_dataset = merge_total_activity(test_dataset)
