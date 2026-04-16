@@ -15,6 +15,7 @@ from DataProcessing import (
     convert_categorical_to_numeric
 )
 from Clasify import run_model
+from Regression import run_regression
 
 def analyze_dataset(dataset):
     # analyze columns
@@ -43,13 +44,13 @@ def process_dataset(train_dataset, test_dataset):
     train_dataset = train_dataset.drop(columns=['region', 'gender'], errors='ignore')
     test_dataset = test_dataset.drop(columns=['region', 'gender'], errors='ignore')
 
-    # replace outliers with NaN then impute those values
-    train_dataset, test_dataset = replace_outliers_with_nan(train_dataset, test_dataset)
-    train_dataset, test_dataset = impute_columns(train_dataset, test_dataset)
-
     # convert categorical variables to numeric in oreder to minimize the final number of columns
     train_dataset = convert_categorical_to_numeric(train_dataset)
     test_dataset = convert_categorical_to_numeric(test_dataset)
+
+    # replace outliers with NaN then impute those values
+    train_dataset, test_dataset = replace_outliers_with_nan(train_dataset, test_dataset)
+    train_dataset, test_dataset = impute_columns(train_dataset, test_dataset)
 
     train_dataset = merge_total_activity(train_dataset)
     test_dataset = merge_total_activity(test_dataset)
@@ -65,6 +66,7 @@ def main():
     analyze_dataset(train_dataset)
     train_dataset, test_dataset = process_dataset(train_dataset, test_dataset)
     run_model(train_dataset, test_dataset)
+    run_regression(train_dataset, test_dataset)
 
 if __name__ == "__main__":
     main()

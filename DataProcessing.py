@@ -70,14 +70,15 @@ def impute_columns(train_dataset, test_dataset):
     null_columns = train_dataset.columns[train_dataset.isna().any()].tolist()
     
     for col in null_columns:
-        imputer = SimpleImputer(strategy='most_frequent')
+        if  is_numeric_dtype(train_dataset[col]):
+            imputer = SimpleImputer(strategy='mean')
+        else:
+            imputer = SimpleImputer(strategy='most_frequent')
 
-        if not is_numeric_dtype(train_dataset[col]):
-            
-            train_dataset[[col]] = imputer.fit_transform(train_dataset[[col]])
-            
-            if col in test_dataset.columns:
-                test_dataset[[col]] = imputer.transform(test_dataset[[col]])
+        train_dataset[[col]] = imputer.fit_transform(train_dataset[[col]])
+
+        if col in test_dataset.columns:
+            test_dataset[[col]] = imputer.transform(test_dataset[[col]])
 
     return train_dataset, test_dataset
 

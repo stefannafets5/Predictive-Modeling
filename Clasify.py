@@ -14,8 +14,6 @@ def convert_categories_to_numbers(train_dataset, test_dataset):
     test_dataset[target] = encoder.transform(test_dataset[target])
     test_dataset = pd.get_dummies(test_dataset)
 
-    print(test_dataset.dtypes)
-
     # for columns that don't exist in the test dataset
     test_dataset = test_dataset.reindex(columns=train_dataset.columns, fill_value=0)
 
@@ -53,14 +51,9 @@ def run_model(train_dataset, test_dataset):
     y_test = processed_test_dataset['final_result']
     
     #good parameters for RandomForestClassifier
-    best = -1
-    ids = -1
-    for i in range(0,6):
-        score = train_and_evaluate(X_train, X_test, y_train, y_test, None, i+1, f"Baseline_Default{i+1}")
-        if score > best:
-            best = score
-            ids = i + 1
-    print(f"Best score: {best}, with id: {ids}")
+    train_and_evaluate(X_train, X_test, y_train, y_test, None, 3, "Baseline_Default3")
+    train_and_evaluate(X_train, X_test, y_train, y_test, None, 4, "Baseline_Default4")
+    train_and_evaluate(X_train, X_test, y_train, y_test, None, 5, "Baseline_Default5")
     # good parameters for DecisionTreeClassifier
     # train_and_evaluate(X_train, X_test, y_train, y_test, 7, 20, "Baseline_Default")
 
