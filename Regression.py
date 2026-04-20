@@ -4,71 +4,85 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import learning_curve
+
+def plot_actual_vs_predicted(y_true, y_pred, model_name):
+    plt.figure(figsize=(10, 6))
+    plt.scatter(y_true, y_pred, alpha=0.4, color='royalblue', label='Predictions')
+    
+    min_val = min(min(y_true), min(y_pred))
+    max_val = max(max(y_true), max(y_pred))
+    plt.plot([min_val, max_val], [min_val, max_val], 'r--', lw=2, label='Perfect Fit')
+    
+    plt.xlabel('True Scores')
+    plt.ylabel('Predicted Scores')
+    plt.title(f'Actual vs Predicted - {model_name}')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(f'scatter_actual_vs_pred_{model_name}.png')
+    plt.close()
 
 def plot_learning_curves(X_train, y_train, X_test, y_test, models, model_names):
     plt.figure(figsize=(12, 8))
-    
-    # generate 10 sets form 10% to 100% of data
     train_sizes_fractions = np.linspace(0.1, 1.0, 10)
     n_samples = len(X_train)
+    colors = ['blue', 'orange', 'green']
 
     for i in range(len(models)):
         model = models[i]
         name = model_names[i]
+        color = colors[i % len(colors)]
         
         train_errors = []
         val_errors = []
         
         for fraction in train_sizes_fractions:
             subset_size = int(fraction * n_samples)
-            
             X_subset = X_train.iloc[:subset_size]
             y_subset = y_train.iloc[:subset_size]
             
             model.fit(X_subset, y_subset)
             
-            # evaluare pe setul de antrenament curent
             train_preds = model.predict(X_subset)
             train_errors.append(mean_absolute_error(y_subset, train_preds))
             
-            # evaluare pe setul de validare (test) complet
             val_preds = model.predict(X_test)
             val_errors.append(mean_absolute_error(y_test, val_preds))
             
-        # adaugam liniile in grafic
-        plt.plot(train_sizes_fractions * 100, train_errors, linestyle='--', label=f'{name} (Train)')
-        plt.plot(train_sizes_fractions * 100, val_errors, marker='o', label=f'{name} (Validation)')
+        plt.plot(train_sizes_fractions * 100, train_errors, color=color, linestyle='-', alpha=0.7, label=f'{name} (Train)')
+        plt.plot(train_sizes_fractions * 100, val_errors, color=color, linestyle='--', marker='o', markersize=4, label=f'{name} (Test)')
 
-    plt.xlabel('Training dataset size')
-    plt.ylabel('Mean Absolute Error')
-    plt.title('Regression Model Comparison')
+    plt.xlabel('Training dataset size (%)')
+    plt.ylabel('Mean Absolute Error (MAE)')
+    plt.title('Regression Model Comparison: Train vs Test Error')
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.grid(True)
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig('learning_curves.png')
+    plt.savefig('learning_curves_models_comparison.png')
     plt.close()
 
-def run_regression(train_dataset, test_dataset):
-    # prepare data
+def run_regression(train_dataset, test_dataset):    
+    # Prepare data
     X_train = train_dataset.drop(columns=['final_result', 'final_coursework_score'], errors='ignore')
     y_train = train_dataset['final_coursework_score']
     
     X_test = test_dataset.drop(columns=['final_result', 'final_coursework_score'], errors='ignore')
     y_test = test_dataset['final_coursework_score']
     
+    # One-hot encoding
     X_train = pd.get_dummies(X_train)
     X_test = pd.get_dummies(X_test)
     X_test = X_test.reindex(columns=X_train.columns, fill_value=0)
 
+    # Modele
     model_lr = LinearRegression()
     model_ridge = Ridge(alpha=5.0)
-    model_rf = RandomForestRegressor(n_estimators=100, max_depth=8, min_samples_leaf=20)
+    model_rf = RandomForestRegressor(n_estimators=100, max_depth=8, min_samples_leaf=20, random_state=42)
 
     models = [model_lr, model_ridge, model_rf]
     names = ['LinearRegression', 'RidgeRegression', 'RandomForestRegression']
 
-    # evaluate each model
+    # Evaluate each model
     for i in range(len(models)):
         model = models[i]
         name = names[i]
@@ -81,11 +95,13 @@ def run_regression(train_dataset, test_dataset):
         rmse = np.sqrt(mse)
         r2 = r2_score(y_test, predictions)
         
-        print(f"result for {name}:")
+        print(f"Results for {name}:")
         print(f"MAE: {mae:.4f}")
         print(f"MSE: {mse:.4f}")
         print(f"RMSE: {rmse:.4f}")
-        print(f"R2 Score: {r2:.4f}")
-        print("\n")
+        print(f"R2 Score: {r2:.4f}\n")
+
+        if name == 'RandomForestRegression':
+            plot_actual_vs_predicted(y_test, predictions, name)
 
     plot_learning_curves(X_train, y_train, X_test, y_test, models, names)
