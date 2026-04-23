@@ -1,7 +1,9 @@
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 
 def convert_categories_to_numbers(train_dataset, test_dataset):
@@ -30,7 +32,6 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, max_depth, min_samples_
     precision = precision_score(y_test, predictions, average='weighted', zero_division=0)
     recall = recall_score(y_test, predictions, average='weighted', zero_division=0)
     f1 = f1_score(y_test, predictions, average='weighted', zero_division=0)
-    total_score = (acuracy + precision + recall + f1) / 4
     
     print(f"Rezultate pentru {name}:")
     print(f"Acuratete: {acuracy:.4f}")
@@ -39,7 +40,20 @@ def train_and_evaluate(X_train, X_test, y_train, y_test, max_depth, min_samples_
     print(f"F1 Score: {f1:.4f}")
     print("\n")
     
-    return total_score
+    return predictions
+
+def plot_cm(y_test, predictions, label_encoder, model_name):
+    cm = confusion_matrix(y_test, predictions)
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=label_encoder.classes_, 
+                yticklabels=label_encoder.classes_)
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title(f'Confusion Matrix - {model_name}')
+    plt.tight_layout()
+    plt.savefig(f'conf_matrix_{model_name}.png')
+    plt.close()
 
 def run_model(train_dataset, test_dataset):
     processed_train_dataset, processed_test_dataset, label_encoder = convert_categories_to_numbers(train_dataset.copy(), test_dataset.copy())
@@ -51,9 +65,9 @@ def run_model(train_dataset, test_dataset):
     y_test = processed_test_dataset['final_result']
     
     #good parameters for RandomForestClassifier
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 3, "Baseline_Default3")
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 4, "Baseline_Default4")
-    train_and_evaluate(X_train, X_test, y_train, y_test, None, 5, "Baseline_Default5")
+    pred = train_and_evaluate(X_train, X_test, y_train, y_test, None, 4, "RandomForestClassifier")
+    plot_cm(y_test, pred, label_encoder, "RandomForestClassifier")
     # good parameters for DecisionTreeClassifier
-    # train_and_evaluate(X_train, X_test, y_train, y_test, 7, 20, "Baseline_Default")
-
+    # pred2 = train_and_evaluate(X_train, X_test, y_train, y_test, 8, 20, "DecisionTreeClassifier")
+    # plot_cm(y_test, pred2, label_encoder, "DecisionTreeClassifier")
+    

@@ -77,7 +77,7 @@ def run_regression(train_dataset, test_dataset):
     # Modele
     model_lr = LinearRegression()
     model_ridge = Ridge(alpha=5.0)
-    model_rf = RandomForestRegressor(n_estimators=100, max_depth=8, min_samples_leaf=20, random_state=42)
+    model_rf = RandomForestRegressor(n_estimators=100, max_depth=8, min_samples_leaf=20)
 
     models = [model_lr, model_ridge, model_rf]
     names = ['LinearRegression', 'RidgeRegression', 'RandomForestRegression']
