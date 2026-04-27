@@ -7,12 +7,12 @@ from scipy.stats import chi2_contingency
 
 def replace_outliers_with_nan(train_dataset, test_dataset):
     exclude = ['final_result', 'final_coursework_score']
-    cnumeric_columns = train_dataset.select_dtypes(include=['number']).columns.tolist()
+    numeric_columns = train_dataset.select_dtypes(include=['number']).columns.tolist()
 
-    for col in cnumeric_columns:
+    for col in numeric_columns:
         if col not in exclude:
-            q1 = train_dataset[col].quantile(0.25)
-            q3 = train_dataset[col].quantile(0.75)
+            q1 = train_dataset[col].quantile(0.05)
+            q3 = train_dataset[col].quantile(0.95)
             middle = q3 - q1
             lower_bound = q1 - 1.5 * middle
             upper_bound = q3 + 1.5 * middle

@@ -32,15 +32,10 @@ def analyze_dataset(dataset):
     analyze_all_correlations(dataset, 'studied_credits', 'highest_education', class_target, reg_target)
 
 def process_dataset(train_dataset, test_dataset):
-    # remove redundant and mostly null columns
+    # remove redundant and useless attributes
     redundant_attributes = check_redundant_attributes(train_dataset)
     train_dataset = train_dataset.drop(columns=redundant_attributes)
     test_dataset = test_dataset.drop(columns=redundant_attributes)
-
-    null_columns = check_null_values(train_dataset)
-    train_dataset = train_dataset.drop(columns=null_columns)
-    test_dataset = test_dataset.drop(columns=null_columns)
-
     train_dataset = train_dataset.drop(columns=['region', 'gender'], errors='ignore')
     test_dataset = test_dataset.drop(columns=['region', 'gender'], errors='ignore')
 
@@ -48,12 +43,15 @@ def process_dataset(train_dataset, test_dataset):
     train_dataset = convert_categorical_to_numeric(train_dataset)
     test_dataset = convert_categorical_to_numeric(test_dataset)
 
-    # replace outliers with NaN then impute those values
-    train_dataset, test_dataset = replace_outliers_with_nan(train_dataset, test_dataset)
-    train_dataset, test_dataset = impute_columns(train_dataset, test_dataset)
-
+    # merge click_columns to make less data and copmpute faster
     train_dataset = merge_total_activity(train_dataset)
     test_dataset = merge_total_activity(test_dataset)
+
+    # replace outliers with NaN
+    train_dataset, test_dataset = replace_outliers_with_nan(train_dataset, test_dataset)
+
+    # impute NaN values from dataset and outlier transformation
+    train_dataset, test_dataset = impute_columns(train_dataset, test_dataset)
 
     train_dataset, test_dataset = standardize_data(train_dataset, test_dataset)
 
