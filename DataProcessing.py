@@ -47,7 +47,7 @@ def check_redundant_attributes(dataset):
             col2 = numeric_colums[j]
             val = correlation_matrix.loc[col1, col2]
             
-            if val >= 0.8:
+            if val >= 0.9:
                 print(f"{col1} - {col2}: {val:.4f} correlation score")
                 redundant_attributes.append(col2)
 

@@ -5,7 +5,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.compose import ColumnTransformer
 
 def encode_dataset(train_dataset, test_dataset):
     target = 'final_result'
@@ -58,45 +57,40 @@ def run_model(train_dataset, test_dataset):
     X_test = processed_test_dataset.drop(columns=['final_result', 'final_coursework_score'], errors='ignore')
     y_test = processed_test_dataset['final_result']
 
-    # RandomForestClassifier test
+    run_classifier(0, X_train, X_test, y_train, y_test, label_encoder)
+
+def run_classifier(idx, X_train, X_test, y_train, y_test, label_encoder):
     mprec = 0
     macc = 0
     mrec = 0
     mf1 = 0
+    bprec = 0
+    bacc = 0
+    brec = 0
+    bf1 = 0
     for i in range (10):
-        pred, acc, prec, rec, f1 = train_and_evaluate(X_train, X_test, y_train, y_test, None, 4, "RandomForestClassifier")
+        if (idx == 0):
+            pred, acc, prec, rec, f1 = train_and_evaluate(X_train, X_test, y_train, y_test, None, 4, "RandomForestClassifier")
+        else:
+            pred, acc, prec, rec, f1 = train_and_evaluate(X_train, X_test, y_train, y_test, 8, 20, "DecisionTreeClassifier")
         mprec += prec
         macc += acc
         mrec += rec
         mf1 += f1
+        if (bf1 < f1):
+            bf1 = f1
+            bprec = prec
+            bacc = acc
+            brec = rec
     
     print("pt 4")
-    print(f"Acuratete: {macc/10:.4f}")
-    print(f"Precizie: {mprec/10:.4f}")
-    print(f"Recall: {mrec/10:.4f}")
-    print(f"F1 Score: {mf1/10:.4f}")
+    print(f"Medium accuracy: {macc/10:.4f} maximum: {bacc:.4f}")
+    print(f"Medium precision: {mprec/10:.4f} maximum: {bprec:.4f}")
+    print(f"Medium recall: {mrec/10:.4f} maximum: {brec:.4f}")
+    print(f"Medium F1 Score: {mf1/10:.4f} maximum: {bf1:.4f}")
     print("\n")
     
-    plot_cm(y_test, pred, label_encoder, "RandomForestClassifier")
-
-    # DecisionTreeClassifier test
-
-    # mprec = 0
-    # macc = 0
-    # mrec = 0
-    # mf1 = 0
-    # for i in range (10):
-    #     pred2, acc, prec, rec, f1 = train_and_evaluate(X_train, X_test, y_train, y_test, 8, 20, "DecisionTreeClassifier")
-    #     mprec += prec
-    #     macc += acc
-    #     mrec += rec
-    #     mf1 += f1
-    
-    # print("pt decision")
-    # print(f"Acuratete: {macc/10:.4f}")
-    # print(f"Precizie: {mprec/10:.4f}")
-    # print(f"Recall: {mrec/10:.4f}")
-    # print(f"F1 Score: {mf1/10:.4f}")
-    # print("\n")
-    
-    # plot_cm(y_test, pred2, label_encoder, "DecisionTreeClassifier")
+    if (idx == 0):
+        plot_cm(y_test, pred, label_encoder, "RandomForestClassifier")
+    else:
+        plot_cm(y_test, pred, label_encoder, "DecisionTreeClassifier")
