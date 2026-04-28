@@ -74,7 +74,7 @@ def run_regression(train_dataset, test_dataset):
     X_test = pd.get_dummies(X_test)
     X_test = X_test.reindex(columns=X_train.columns, fill_value=0)
 
-    # Modele
+    # Models
     model_lr = LinearRegression()
     model_ridge = Ridge(alpha=5.0)
     model_rf = RandomForestRegressor(n_estimators=100, max_depth=8, min_samples_leaf=20)

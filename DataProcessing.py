@@ -1,9 +1,7 @@
-import pandas as pd
 import numpy as np
 from pandas.api.types import is_numeric_dtype
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
-from scipy.stats import chi2_contingency
 
 def replace_outliers_with_nan(train_dataset, test_dataset):
     exclude = ['final_result', 'final_coursework_score']

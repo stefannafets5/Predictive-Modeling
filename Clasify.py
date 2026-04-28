@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.preprocessing import LabelEncoder
 
 def encode_dataset(train_dataset, test_dataset):
     target = 'final_result'
@@ -22,8 +22,14 @@ def encode_dataset(train_dataset, test_dataset):
     return train_dataset, test_dataset, encoder
 
 def train_and_evaluate(X_train, X_test, y_train, y_test, max_depth, min_samples_leaf, name):
-    # model = DecisionTreeClassifier(max_depth=max_depth, min_samples_leaf=min_samples_leaf)
-    model = RandomForestClassifier(n_estimators=250, max_depth=max_depth, min_samples_leaf=min_samples_leaf)
+    if(name == "RandomForestClassifier"):
+        model = RandomForestClassifier(n_estimators=250, max_depth=max_depth, min_samples_leaf=min_samples_leaf)
+    elif (name == "DecisionTreeClassifier"):
+        model = DecisionTreeClassifier(max_depth=max_depth, min_samples_leaf=min_samples_leaf)
+    else:
+        print("Invalid model name")
+        return
+
     model.fit(X_train, y_train)
     
     predictions = model.predict(X_test)
