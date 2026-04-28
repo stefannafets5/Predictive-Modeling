@@ -1,77 +1,79 @@
-# **Student Success Prediction System**
+# Predictive Analytics for Student Success (OUALD)
 [![Python](https://img.shields.io/badge/Language-Python-3776AB.svg?style=flat&logo=python)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/Library-Scikit--Learn-F7931E.svg?style=flat&logo=scikit-learn)](https://scikit-learn.org/)
 [![Pandas](https://img.shields.io/badge/Library-Pandas-150458.svg?style=flat&logo=pandas)](https://pandas.pydata.org/)
 
 **Copyright © Springer Robert Stefan, 2026**
 
-> An end-to-end **Machine Learning Pipeline** designed to predict student performance using the Open University Learning Analytics Dataset (OUALD).
+> An end-to-end Machine Learning ecosystem designed to predict academic outcomes using the Open University Learning Analytics Dataset (OUALD).
 > 
-> The system implements a robust data processing engine and evaluates multiple algorithms for both **Classification** (predicting final results) and **Regression** (predicting coursework scores), achieving an optimized balance between bias and variance.
+> This system implements a high-performance pipeline: from advanced data orchestration and hybrid imputation to multi-model evaluation achieving good results by balancing architectural bias and variance.
 
 ## **Table of Contents**
 - [Overview](#overview)
-- [Project Architecture](#project-architecture)
-- [Data Processing Pipeline](#data-processing-pipeline)
+- [System Architecture](#system-architecture)
+- [Data Orchestration Pipeline](#data-orchestration-pipeline)
 - [Analysis & Modeling](#analysis--modeling)
-- [Key Features](#key-features)
-- [Setup & Usage](#setup--usage)
+- [Performance Results](#performance-results)
 
 ## **Overview**
 
-The project aims to analyze student interaction data with a Virtual Learning Environment (VLE) to provide early predictions on:
-1.  **Classification**: `final_result` (Pass, Fail, Withdrawn, Distinction).
-2.  **Regression**: `final_coursework_score` (Target score from 0-100).
+This project analyzes student interactions within Virtual Learning Environments (VLE) to provide high-fidelity early predictions:
+1. **Classification**: Predicts categorical outcomes (`Pass`, `Fail`, `Withdrawn`, `Distinction`).
+2. **Regression**: Estimates precise performance scores (`final_coursework_score`, range 0-100).
 
-The dataset is divided into training, validation, and test sets, ensuring that models are evaluated on unseen data to test generalization capabilities.
+## **System Architecture**
 
-## **Project Architecture**
-
-| Module | Description |
+| Module | Purpose |
 |:---:|:---|
-| **`main.py`** | The central orchestrator for data loading, analysis, processing, and model execution. |
-| **`DataAnalysis.py`** | Performs Exploratory Data Analysis (EDA), including boxplots, countplots, and correlation matrices. |
-| **`DataProcessing.py`** | Handles cleaning, outlier removal (IQR), hybrid imputation, and feature engineering. |
-| **`Clasify.py`** | Implements classification logic using RandomForest and DecisionTree with hyperparameter tuning. |
-| **`Regression.py`** | Compares LinearRegression, Ridge, and Random Forest for score prediction. |
+| **`main.py`** | Central orchestrator managing the full lifecycle from data ingestion to model deployment. |
+| **`DataAnalysis.py`** | Exploratory Data Analysis (EDA) engine using Pearson correlation and Chi-Square statistical tests. |
+| **`DataProcessing.py`** | Advanced cleaning, IQR-based outlier management (0.05-0.95), and automated feature engineering. |
+| **`Clasify.py`** | Classification logic featuring Hyperparameter-tuned Random Forest and Decision Tree architectures. |
+| **`Regression.py`** | Comparative regression engine evaluating Linear, Ridge, and Ensemble methods. |
 
-## **Data Processing Pipeline**
+## **Data Orchestration Pipeline**
 
-To achieve high accuracy (~62% classification and 0.75 R² regression), the following steps are performed:
+The pipeline utilizes production-grade methods to elevate baseline accuracy from ~50% to over 76%:
 
-1.  **Outlier Cleaning**: Uses the Interquartile Range (IQR) method to replace extreme values with `NaN`.
-2.  **Hybrid Imputation**:
-    *   **Numeric**: Replaces `NaN` with the `Mean` to maintain distribution.
-    *   **Categorical**: Replaces `NaN` with the `Mode` (Most Frequent).
-3.  **Feature Engineering**:
-    *   Merges various interaction types into a single `total_activity` metric.
-    *   Maps ordinal categorical features (Age, IMD, Education) to numeric scales.
-4.  **Standardization**: Applies `StandardScaler` to numeric attributes to ensure models aren't biased by feature magnitude.
+1. **Outlier Mitigation**: Implements the Interquartile Range (IQR) method with optimized thresholds (q1=0.05, q3=0.95) to preserve meaningful extremes while removing noise.
+2. **Hybrid Imputation Strategy**: 
+   * **Numeric Features**: Statistical `Mean` imputation to maintain data distribution.
+   * **Categorical Features**: `Most Frequent` (Mode) strategy to preserve class integrity.
+3. **Feature Engineering & Dimensionality Reduction**:
+   * **Total Activity Synthesis**: Aggregates disparate VLE interaction metrics into a unified `total_activity` score.
+   * **Categorical Mapping**: Efficiently maps ordinal features (Age, IMD, Education) to numeric scales for optimized computation.
+4. **Redundancy Filtering**: Automated drops for attributes with cross-correlation > 0.9 (e.g., *submission_rate_early*).
 
 ## **Analysis & Modeling**
 
-### **Classification Logic**
-- **Balanced Weights**: Uses `class_weight='balanced'` in Random Forest to handle the inherent imbalance in student results (e.g., few Distinction cases).
-- **Evaluation**: Tracks Accuracy, Weighted Precision, Recall, and F1-Score.
-- **Confusion Matrix**: Visualizes exactly where the model confuses "Pass" with "Distinction" or "Fail".
+### **Classification (Ensemble Methods)**
+- **Hyperparameters**: `n_estimators=250`, `min_samples_leaf=4`.
+- **Key Metrics**: Accuracy: **0.7649** | Weighted F1-Score: **0.7482**.
+- **Insight**: The model exhibits exceptional performance in identifying "Withdrawn" status through the hybrid prediction logic.
 
-### **Regression Logic**
-- **Baseline vs. Advanced**: Compares simple `LinearRegression` with `RandomForestRegressor`.
-- **Metrics**: Evaluates performance using MAE, MSE, RMSE, and R².
-- **Learning Curves**: Tracks error evolution relative to training set size to detect overfitting.
+### **Regression (Predictive Scoring)**
+- **Hyperparameters**: `n_estimators=100`, `max_depth=8`.
+- **Key Metrics**: R² Score: **0.8092** | MAE: **4.9736**.
+- **Insight**: Learning Curve analysis demonstrates that while linear models suffer from underfitting, the Random Forest architecture scales effectively with data volume for superior generalization.
 
-## **Key Features**
+## **Performance Results**
 
-*   **Robust Preprocessing**: Automatic identification and removal of redundant attributes with correlation scores > 0.8.
-*   **Chi-Square Validation**: Statistically assesses the relationship between categorical features and the target class.
-*   **Visual Documentation**: Automatically generates PNG reports (scatter plots, confusion matrices, and learning curves) for every execution.
-*   **Performance Tracking**: Maintains a record of the "Best Average Score" across different hyperparameter configurations (leaf size, depth).
+| Model | Accuracy / R² | Precision / MAE |
+|:---|:---:|:---:|
+| **RandomForest Classifier** | **76.49%** | 0.7702 |
+| **DecisionTree Classifier** | 74.53% | 0.7430 |
+| **RandomForest Regressor** | **0.8092 (R²)** | 4.9736 (MAE) |
+| **Linear Regression** | 0.8054 (R²) | 5.0943 (MAE) |
 
 ## **Setup & Usage**
 
-### **Dependencies**
-Install the required libraries using pip then run main.py:
+### **Installation**
 ```bash
 pip install pandas numpy scikit-learn matplotlib seaborn scipy
+```
 
+### **Execution**
+```bash
 python3 main.py
+```
